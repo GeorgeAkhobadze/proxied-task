@@ -7,12 +7,23 @@ import {
     ApolloClient,
     SSRMultipartLink,
 } from "@apollo/experimental-nextjs-app-support";
-import {ReactNode} from "react";
+import { ReactNode } from "react";
+import { setContext } from "@apollo/client/link/context";
 
 function makeClient() {
     const httpLink = new HttpLink({
         uri: "https://take-home-be.onrender.com/api",
         fetchOptions: { cache: "no-store" },
+    });
+
+    const authLink = setContext((_, { headers }) => {
+        const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+        return {
+            headers: {
+                ...headers,
+                Authorization: token ? `Bearer ${token}` : "",
+            },
+        };
     });
 
     return new ApolloClient({
@@ -23,9 +34,9 @@ function makeClient() {
                     new SSRMultipartLink({
                         stripDefer: true,
                     }),
-                    httpLink,
+                    authLink.concat(httpLink),
                 ])
-                : httpLink,
+                : authLink.concat(httpLink),
     });
 }
 
