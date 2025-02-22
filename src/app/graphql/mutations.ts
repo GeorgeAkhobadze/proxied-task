@@ -8,3 +8,11 @@ export const REGISTER_MUTATION = gql`
     }
   }
 `;
+
+export const ADD_ITEM_MUTATION = gql`
+  mutation AddItem($input: AddItemArgs!) {
+    addItem(input: $input) {
+      hash
+    }
+  }
+`;
