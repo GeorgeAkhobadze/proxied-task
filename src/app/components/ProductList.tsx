@@ -39,7 +39,7 @@ const ProductList: React.FC = () => {
     return <p className="text-center text-gray-400">No products available</p>;
 
   return (
-    <ul className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-3 gap-4">
+    <ul className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
       {products.map((product, index) => (
         <li
           key={index}
