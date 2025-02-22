@@ -4,6 +4,7 @@ import { useMutation } from '@apollo/client';
 import { useEffect } from 'react';
 import { REGISTER_MUTATION } from '@/app/graphql/mutations';
 import ProductList from '@/app/components/ProductList';
+import Header from '@/app/components/Header';
 
 export default function Home() {
   const token = localStorage.getItem('token');
@@ -27,13 +28,16 @@ export default function Home() {
   if (registerError) return <p>Error: {registerError.message}</p>;
 
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        {registerData && (
-          <p>Registered as Visitor ID: {registerData.register._id}</p>
-        )}
-        <ProductList />
-      </main>
+    <div className="w-full h-full min-h-screen flex bg-gray-800 items-start justify-start">
+      <Header />
+      <div className="flex flex-col w-full h-full">
+        <div className="w-full p-4 border-b-[1px] h-[54px] px-8 bg-gray-900 border-gray-700 sticky top-0 z-10">
+          <p className="font-bold">Product Page</p>
+        </div>
+        <main className="flex-1 mb-12 p-8">
+          <ProductList />
+        </main>
+      </div>
     </div>
   );
 }
