@@ -3,7 +3,11 @@ import { Product } from '@/app/graphql/types';
 import { useMutation } from '@apollo/client';
 import { ADD_ITEM_MUTATION } from '@/app/graphql/mutations';
 
-const Products = (product: Product) => {
+interface ProductProps {
+  product: Product;
+}
+
+const ProductCard = ({ product }: ProductProps) => {
   const [
     addItem,
     { data: addItemData, loading: addItemLoading, error: addItemError },
@@ -43,3 +47,5 @@ const Products = (product: Product) => {
     </li>
   );
 };
+
+export default ProductCard;
