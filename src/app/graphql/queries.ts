@@ -6,6 +6,9 @@ export const GET_PRODUCTS = gql`
       products {
         title
         cost
+        isArchived
+        availableQuantity
+        _id
       }
     }
   }
