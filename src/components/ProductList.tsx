@@ -41,7 +41,7 @@ const ProductList: React.FC = () => {
 
   return (
     <ul className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
-      {products.map((product, index) => (
+      {products.map((product) => (
         <ProductCard product={product} key={product._id} />
       ))}
     </ul>

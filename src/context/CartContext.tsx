@@ -6,12 +6,12 @@ import { GET_CART } from '@/graphql/queries';
 
 interface CartContextType {
   hash: string | null;
-  products: Product[];
+  items: { product: Product; quantity: number }[];
 }
 
 const defaultContextValue: CartContextType = {
   hash: null,
-  products: [],
+  items: [],
 };
 
 const CartContext = createContext<CartContextType>(defaultContextValue);
@@ -20,18 +20,21 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   const { data, loading, error } = useQuery(GET_CART);
   const [cart, setCart] = useState<CartContextType>({
     hash: null,
-    products: [],
+    items: [],
   });
 
   useEffect(() => {
     if (!loading && !error) {
-      setCart(data.getCart);
+      setCart({
+        hash: data.getCart.hash,
+        items: data.getCart.items,
+      });
     }
   }, [loading]);
 
   return <CartContext.Provider value={cart}>{children}</CartContext.Provider>;
 }
 
-export function useCarts(): CartContextType {
+export function useCart(): CartContextType {
   return useContext(CartContext);
 }
