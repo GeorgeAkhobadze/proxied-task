@@ -2,9 +2,9 @@
 
 import { useMutation } from '@apollo/client';
 import { useEffect } from 'react';
-import { REGISTER_MUTATION } from '@/app/graphql/mutations';
-import ProductList from '@/app/components/ProductList';
-import Header from '@/app/components/Header';
+import { REGISTER_MUTATION } from '@/graphql/mutations';
+import ProductList from '@/components/ProductList';
+import Header from '@/components/Header';
 
 export default function Home() {
   const token = localStorage.getItem('token');

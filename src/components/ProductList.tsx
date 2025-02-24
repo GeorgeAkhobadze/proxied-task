@@ -2,10 +2,10 @@
 
 import React, { useEffect } from 'react';
 import { useQuery } from '@apollo/client';
-import { GET_PRODUCTS } from '@/app/graphql/queries';
-import { Product } from '@/app/graphql/types';
-import { useProducts } from '@/app/context/ProductContext';
-import ProductCard from '@/app/components/Product/ProductCard';
+import { GET_PRODUCTS } from '@/graphql/queries';
+import { Product } from '@/graphql/types';
+import { useProducts } from '@/context/ProductContext';
+import ProductCard from '@/components/Product/ProductCard';
 
 const ProductList: React.FC = () => {
   const token =

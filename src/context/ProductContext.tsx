@@ -1,6 +1,6 @@
 'use client';
 import { createContext, useContext, useState } from 'react';
-import { Product } from '@/app/graphql/types';
+import { Product } from '@/graphql/types';
 
 interface ProductContextType {
   products: Product[];
