@@ -1,6 +1,6 @@
 import React from 'react';
 import { Product } from '@/graphql/types';
-import { useMutation } from '@apollo/client';
+import { useMutation, useSubscription } from '@apollo/client';
 import { ADD_ITEM_MUTATION } from '@/graphql/mutations';
 
 interface ProductProps {
