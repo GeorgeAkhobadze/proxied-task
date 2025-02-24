@@ -4,6 +4,7 @@ import './globals.css';
 import { ApolloWrapper } from '@/lib/ApolloClient';
 import { ProductProvider } from '@/context/ProductContext';
 import { CartProvider } from '@/context/CartContext';
+import Header from '@/components/Header';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -32,7 +33,17 @@ export default function RootLayout({
       >
         <ApolloWrapper>
           <ProductProvider>
-            <CartProvider>{children}</CartProvider>
+            <CartProvider>
+              <div className="w-full h-full min-h-screen flex bg-gray-800 items-start justify-start">
+                <Header />
+                <div className="flex flex-col w-full h-full">
+                  <div className="w-full p-4 border-b-[1px] h-[54px] px-8 bg-gray-900 border-gray-700 sticky top-0 z-10">
+                    <p className="font-bold">Proxied</p>
+                  </div>
+                  <main className="flex-1 mb-12 p-8">{children}</main>
+                </div>
+              </div>
+            </CartProvider>
           </ProductProvider>
         </ApolloWrapper>
       </body>
