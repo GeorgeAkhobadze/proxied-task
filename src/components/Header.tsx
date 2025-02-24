@@ -16,7 +16,7 @@ const Header = () => {
       />
       <div className="flex flex-col justify-center items-center gap-3">
         <Link
-          href="/"
+          href="/public"
           className={`rounded-lg p-1 cursor-pointer transition duration-200 group w-10 h-10 flex items-center justify-center ${
             pathname === '/' ? 'bg-gray-950' : 'hover:bg-gray-600'
           }`}

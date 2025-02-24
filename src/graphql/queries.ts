@@ -21,3 +21,21 @@ export const GET_CART_HASH = gql`
     }
   }
 `;
+
+export const GET_CART = gql`
+  query GetCart {
+    getCart {
+      hash
+      items {
+        product {
+          title
+          cost
+          isArchived
+          availableQuantity
+          _id
+        }
+        quantity
+      }
+    }
+  }
+`;

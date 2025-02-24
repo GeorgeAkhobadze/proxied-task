@@ -1,8 +1,8 @@
 'use client';
 import { createContext, useContext, useEffect, useState } from 'react';
-import { Cart, Product } from '@/app/graphql/types';
+import { Product } from '@/graphql/types';
 import { useQuery } from '@apollo/client';
-import { GET_CART_HASH } from '@/app/graphql/queries';
+import { GET_CART } from '@/graphql/queries';
 
 interface CartContextType {
   hash: string | null;
@@ -17,7 +17,7 @@ const defaultContextValue: CartContextType = {
 const CartContext = createContext<CartContextType>(defaultContextValue);
 
 export function CartProvider({ children }: { children: React.ReactNode }) {
-  const { data, loading, error } = useQuery(GET_CART_HASH);
+  const { data, loading, error } = useQuery(GET_CART);
   const [cart, setCart] = useState<CartContextType>({
     hash: null,
     products: [],
@@ -25,10 +25,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     if (!loading && !error) {
-      setCart((prevCart: CartContextType) => ({
-        ...prevCart,
-        hash: data.getCart.hash,
-      }));
+      setCart(data.getCart);
     }
   }, [loading]);
 
