@@ -13,3 +13,11 @@ export const GET_PRODUCTS = gql`
     }
   }
 `;
+
+export const GET_CART_HASH = gql`
+  query GetCart {
+    getCart {
+      hash
+    }
+  }
+`;
