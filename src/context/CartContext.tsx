@@ -6,13 +6,19 @@ import { GET_CART } from '@/graphql/queries';
 import { CART_ITEM_UPDATE_SUBSCRIPTION } from '@/graphql/subscriptions';
 
 interface CartContextType {
-  hash: string | null;
-  items: { product: Product; quantity: number }[];
+  cart: {
+    hash: string | null;
+    items: { product: Product; quantity: number }[];
+  };
+  addToCart: (product: Product) => void;
 }
 
 const defaultContextValue: CartContextType = {
-  hash: null,
-  items: [],
+  cart: {
+    hash: null,
+    items: [],
+  },
+  addToCart: () => {},
 };
 
 const CartContext = createContext<CartContextType>(defaultContextValue);
@@ -25,7 +31,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     error: cartError,
   } = useSubscription(CART_ITEM_UPDATE_SUBSCRIPTION);
 
-  const [cart, setCart] = useState<CartContextType>({
+  const [cart, setCart] = useState<CartContextType['cart']>({
     hash: null,
     items: [],
   });
@@ -38,7 +44,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       });
     }
   }, [loading, data, error]);
-  // Handle subscription events
+
   useEffect(() => {
     if (
       cartData?.cartItemUpdate.event === 'ITEM_OUT_OF_STOCK' &&
@@ -54,7 +60,18 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     }
   }, [cartData]);
 
-  return <CartContext.Provider value={cart}>{children}</CartContext.Provider>;
+  const addToCart = (product: Product) => {
+    setCart((prevCart) => ({
+      ...prevCart,
+      items: [...prevCart.items, { product, quantity: 1 }],
+    }));
+  };
+
+  return (
+    <CartContext.Provider value={{ cart, addToCart }}>
+      {children}
+    </CartContext.Provider>
+  );
 }
 
 export function useCart(): CartContextType {

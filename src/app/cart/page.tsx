@@ -4,7 +4,7 @@ import ProductCard from '@/components/Product/ProductCard';
 import React from 'react';
 
 export default function CartPage() {
-  const cart = useCart();
+  const { cart } = useCart();
 
   return (
     <div>
