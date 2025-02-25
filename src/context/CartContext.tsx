@@ -11,6 +11,7 @@ interface CartContextType {
     items: { product: Product; quantity: number; _id?: string }[];
   };
   addToCart: (product: Product) => void;
+  removeFromCart: (productId: number) => void;
 }
 
 const defaultContextValue: CartContextType = {
@@ -19,6 +20,7 @@ const defaultContextValue: CartContextType = {
     items: [],
   },
   addToCart: () => {},
+  removeFromCart: () => {},
 };
 
 const CartContext = createContext<CartContextType>(defaultContextValue);
@@ -67,8 +69,15 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     }));
   };
 
+  const removeFromCart = (productId: number) => {
+    setCart((prevCart) => ({
+      ...prevCart,
+      items: prevCart.items.filter((item) => item.product._id !== productId),
+    }));
+  };
+
   return (
-    <CartContext.Provider value={{ cart, addToCart }}>
+    <CartContext.Provider value={{ cart, addToCart, removeFromCart }}>
       {children}
     </CartContext.Provider>
   );

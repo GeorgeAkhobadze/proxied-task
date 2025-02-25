@@ -17,6 +17,14 @@ export const ADD_ITEM_MUTATION = gql`
   }
 `;
 
+export const REMOVE_ITEM_MUTATION = gql`
+  mutation RemoveItem($input: RemoveItemArgs!) {
+    removeItem(input: $input) {
+      hash
+    }
+  }
+`;
+
 export const UPDATE_ITEM_QUANTITY_MUTATION = gql`
   mutation UpdateItemQuantity($input: UpdateItemQuantityArgs!) {
     updateItemQuantity(input: $input) {
