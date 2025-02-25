@@ -27,6 +27,7 @@ export const GET_CART = gql`
     getCart {
       hash
       items {
+        _id
         product {
           title
           cost
