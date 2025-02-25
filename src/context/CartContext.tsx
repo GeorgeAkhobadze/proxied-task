@@ -8,7 +8,7 @@ import { CART_ITEM_UPDATE_SUBSCRIPTION } from '@/graphql/subscriptions';
 interface CartContextType {
   cart: {
     hash: string | null;
-    items: { product: Product; quantity: number }[];
+    items: { product: Product; quantity: number; _id?: string }[];
   };
   addToCart: (product: Product) => void;
 }
