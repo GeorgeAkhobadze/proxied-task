@@ -1,33 +1,44 @@
 import React from 'react';
 import { Product } from '@/graphql/types';
-import { useMutation, useSubscription } from '@apollo/client';
+import { useMutation } from '@apollo/client';
 import { ADD_ITEM_MUTATION } from '@/graphql/mutations';
+import { useCartAddItemSchema } from '@/validations/cartSchemas';
+import { useCart } from '@/context/CartContext';
+import { useToast } from '@/context/ToastContext';
 
 interface ProductProps {
   product: Product;
 }
 
 const ProductCard = ({ product }: ProductProps) => {
-  const [
-    addItem,
-    { data: addItemData, loading: addItemLoading, error: addItemError },
-  ] = useMutation(ADD_ITEM_MUTATION);
+  const { addToCart } = useCart();
+  const schema = useCartAddItemSchema();
+  const [addItem, { loading: addItemLoading }] = useMutation(ADD_ITEM_MUTATION);
+  const { showToast } = useToast();
+  const handleAddItem = async () => {
+    const input = {
+      productId: product._id,
+      quantity: 1,
+    };
+    const validationResult = schema.safeParse(input);
 
-  const handleAddItem = () => {
-    addItem({
-      variables: {
-        input: {
-          productId: product._id,
-          quantity: 1,
-        },
-      },
-    })
-      .then((res) => {
-        console.log('Item added:', res.data);
-      })
-      .catch((err) => {
-        console.log('Error adding item:', err);
+    if (!validationResult.success) {
+      const firstErrorMessage =
+        validationResult.error.errors[0]?.message ||
+        'Validation failed. Please check the input.';
+      showToast(firstErrorMessage, 'error');
+      return;
+    }
+
+    try {
+      await addItem({
+        variables: { input },
       });
+      addToCart(product);
+      showToast(`${product.title} added to cart`, 'success');
+    } catch {
+      showToast('An unexpected error occurred', 'error');
+    }
   };
 
   return (
