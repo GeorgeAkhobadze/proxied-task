@@ -5,7 +5,7 @@ import CartItem from '@/components/Product/CartItem';
 
 export default function CartPage() {
   const { cart } = useCart();
-  console.log('cart:', cart);
+
   return (
     <div>
       <ul className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
