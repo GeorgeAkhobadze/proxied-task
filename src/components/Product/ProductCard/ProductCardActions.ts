@@ -14,10 +14,10 @@ export const useProductCardActions = (product: Product) => {
   const isInCart = cart.items.some((item) => item.product._id === product._id);
   const isOutOfStock = product.availableQuantity === 0;
 
-  const handleAddItem = async () => {
+  const handleAddItem = async (quantity: number) => {
     const input = {
       productId: product._id,
-      quantity: 1,
+      quantity,
     };
     const validationResult = schema.safeParse(input);
 
@@ -31,7 +31,7 @@ export const useProductCardActions = (product: Product) => {
 
     try {
       await addItem({ variables: { input } });
-      addToCart(product);
+      addToCart(product, quantity);
       showToast(`${product.title} added to cart`, 'success');
     } catch {
       showToast('An unexpected error occurred', 'error');
