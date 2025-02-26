@@ -16,13 +16,14 @@ const ProductList: React.FC = () => {
     getProducts: { products: Product[] };
   }>(GET_PRODUCTS, {
     skip: !token,
+    fetchPolicy: 'no-cache',
   });
 
   useEffect(() => {
-    if (data?.getProducts?.products.length) {
+    if (data && data.getProducts) {
       setProducts(data.getProducts.products);
     }
-  }, [data, setProducts]);
+  }, [data]);
 
   if (!token)
     return (
