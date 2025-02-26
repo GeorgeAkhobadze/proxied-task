@@ -3,5 +3,5 @@ export type Product = {
   cost: number;
   isArchived: boolean;
   availableQuantity: number;
-  _id: number;
+  _id: string;
 };

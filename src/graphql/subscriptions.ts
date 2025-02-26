@@ -7,8 +7,9 @@ export const CART_ITEM_UPDATE_SUBSCRIPTION = gql`
       payload {
         product {
           _id
+          availableQuantity
         }
-        cartId
+        _id
         quantity
       }
     }
