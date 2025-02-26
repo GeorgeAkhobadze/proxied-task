@@ -29,5 +29,5 @@ export const cartUpdateItemQuantitySchema = z.object({
   cartItemId: z
     .string()
     .refine((input) => validator.isMongoId(input), 'Invalid cart item ID'),
-  quantity: z.number().min(1),
+  quantity: z.number().min(1, { message: 'Quantity must be greater than 0' }),
 });
