@@ -11,14 +11,9 @@ import {
 } from '@/validations/cartSchemas';
 import { Product } from '@/graphql/types';
 
-export const useCartItemActions = (
-  product: Product,
-  cartItemId: string | undefined,
-  setDisplayedQuantity: React.Dispatch<React.SetStateAction<number>>,
-  quantity: number,
-) => {
+export const useCartItemActions = (product: Product, cartItemId: string) => {
   const { showToast } = useToast();
-  const { removeFromCart } = useCart();
+  const { removeFromCart, changeQuantity } = useCart();
 
   const [updateItemQuantity, { loading: updateQuantityLoading }] = useMutation(
     UPDATE_ITEM_QUANTITY_MUTATION,
@@ -42,23 +37,19 @@ export const useCartItemActions = (
     }
   };
 
-  const handleQuantityChange = async (
-    e: React.ChangeEvent<HTMLSelectElement>,
-  ) => {
-    const input = { cartItemId, quantity: Number(e.target.value) };
+  const handleQuantityChange = async (value: number) => {
+    const input = { cartItemId, quantity: value };
     const validationResult = cartUpdateItemQuantitySchema.safeParse(input);
 
     if (!validationResult.success) {
       showToast(validationResult.error.errors[0].message, 'error');
       return;
     }
-
     try {
-      setDisplayedQuantity(Number(e.target.value));
+      changeQuantity(cartItemId, value);
       await updateItemQuantity({ variables: { input } });
       showToast('Quantity Updated Successfully', 'success');
     } catch {
-      setDisplayedQuantity(quantity);
       showToast('An unexpected error occurred', 'error');
     }
   };
