@@ -5,7 +5,7 @@ import { useQuery } from '@apollo/client';
 import { GET_PRODUCTS } from '@/graphql/queries';
 import { Product } from '@/graphql/types';
 import { useProducts } from '@/context/ProductContext';
-import ProductCard from '@/components/Product/ProductCard';
+import ProductCard from '@/components/Product/ProductCard/ProductCard';
 
 const ProductList: React.FC = () => {
   const token =
