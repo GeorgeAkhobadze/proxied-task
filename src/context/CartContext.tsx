@@ -27,12 +27,7 @@ const CartContext = createContext<CartContextType>(defaultContextValue);
 
 export function CartProvider({ children }: { children: React.ReactNode }) {
   const { data, loading, error } = useQuery(GET_CART);
-  const {
-    data: cartData,
-    loading: cartLoading,
-    error: cartError,
-  } = useSubscription(CART_ITEM_UPDATE_SUBSCRIPTION);
-
+  const { data: cartData } = useSubscription(CART_ITEM_UPDATE_SUBSCRIPTION);
   const [cart, setCart] = useState<CartContextType['cart']>({
     hash: null,
     items: [],

@@ -7,6 +7,10 @@ import {
 } from '@/graphql/mutations';
 import { useToast } from '@/context/ToastContext';
 import { useCart } from '@/context/CartContext';
+import {
+  cartRemoveItemSchema,
+  cartUpdateItemQuantitySchema,
+} from '@/validations/cartSchemas';
 
 interface ProductProps {
   product: Product;
@@ -25,6 +29,12 @@ const CartItem = ({ product, quantity, cartItemId }: ProductProps) => {
     useMutation(REMOVE_ITEM_MUTATION);
 
   const handleItemRemove = async () => {
+    const validationResult = cartRemoveItemSchema.safeParse({ cartItemId });
+    if (!validationResult.success) {
+      showToast(validationResult.error.errors[0].message, 'error');
+      return;
+    }
+
     try {
       await removeItem({
         variables: {
@@ -39,7 +49,7 @@ const CartItem = ({ product, quantity, cartItemId }: ProductProps) => {
       showToast('An unexpected error occurred', 'error');
     }
   };
-  console.log('Cart product:', product);
+
   const handleQuantityChange = async (
     e: React.ChangeEvent<HTMLSelectElement>,
   ) => {
@@ -48,6 +58,11 @@ const CartItem = ({ product, quantity, cartItemId }: ProductProps) => {
       quantity: Number(e.target.value),
     };
 
+    const validationResult = cartUpdateItemQuantitySchema.safeParse(input);
+    if (!validationResult.success) {
+      showToast(validationResult.error.errors[0].message, 'error');
+      return;
+    }
     try {
       setDisplayedQuantity(Number(e.target.value));
       await updateItemQuantity({ variables: { input } });
@@ -76,7 +91,7 @@ const CartItem = ({ product, quantity, cartItemId }: ProductProps) => {
       <label className="text-gray-300 flex mt-auto items-center justify-between">
         Quantity:
         <select
-          disabled={updateQuantityLoading}
+          disabled={updateQuantityLoading || removeItemLoading}
           className="self-end p-2 bg-gray-900 text-gray-200 rounded px-4"
           value={displayedQuantity}
           onChange={(e) => handleQuantityChange(e)}
