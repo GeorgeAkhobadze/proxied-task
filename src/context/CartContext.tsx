@@ -1,39 +1,18 @@
 'use client';
+
 import { createContext, useContext, useEffect, useState } from 'react';
-import { Product } from '@/graphql/types';
 import { useQuery, useSubscription } from '@apollo/client';
+import { Product } from '@/graphql/types';
 import { GET_CART } from '@/graphql/queries';
 import { CART_ITEM_UPDATE_SUBSCRIPTION } from '@/graphql/subscriptions';
-
-interface CartContextType {
-  cart: {
-    hash: string | null;
-    items: { product: Product; quantity: number; _id?: string }[];
-  };
-  setCart: React.Dispatch<React.SetStateAction<CartContextType['cart']>>;
-  updatedItems: {
-    product: Product;
-    quantity: number;
-    _id?: string;
-    _typename: 'CartItem';
-    action: 'ITEM_OUT_OF_STOCK' | 'ITEM_QUANTITY_UPDATED';
-    updatedQuantity?: number;
-  }[];
-  addToCart: (product: Product, quantity: number) => void;
-  removeFromCart: (productId: string) => void;
-  changeQuantity: (productId: string, quantity: number) => void;
-  clearUpdates: () => void;
-}
+import { Cart, UpdatedCartItem, CartContextType } from '@/interfaces/cart';
 
 const defaultContextValue: CartContextType = {
-  cart: {
-    hash: null,
-    items: [],
-  },
+  cart: { hash: null, items: [] },
   updatedItems: [],
+  setCart: () => {},
   addToCart: () => {},
   removeFromCart: () => {},
-  setCart: () => {},
   changeQuantity: () => {},
   clearUpdates: () => {},
 };
@@ -41,32 +20,28 @@ const defaultContextValue: CartContextType = {
 const CartContext = createContext<CartContextType>(defaultContextValue);
 
 export function CartProvider({ children }: { children: React.ReactNode }) {
-  const { data: cartData } = useSubscription(CART_ITEM_UPDATE_SUBSCRIPTION);
-  const [cart, setCart] = useState<CartContextType['cart']>({
-    hash: null,
-    items: [],
-  });
+  const { data: subscriptionData } = useSubscription(
+    CART_ITEM_UPDATE_SUBSCRIPTION,
+  );
   const { data, loading, error } = useQuery(GET_CART);
-  const [updatedItems, setUpdatedItems] = useState<
-    CartContextType['updatedItems']
-  >([]);
+
+  const [cart, setCart] = useState<Cart>({ hash: null, items: [] });
+  const [updatedItems, setUpdatedItems] = useState<UpdatedCartItem[]>([]);
 
   useEffect(() => {
-    if (!loading && !error && data?.getCart) {
-      setCart({
-        hash: data.getCart.hash,
-        items: data.getCart.items,
-      });
-    }
-  }, [loading, data, error]);
+    if (loading || error || !data?.getCart) return;
+    setCart({ hash: data.getCart.hash, items: data.getCart.items });
+  }, [loading, error, data]);
 
   useEffect(() => {
+    if (!subscriptionData?.cartItemUpdate) return;
+
+    const { event, payload } = subscriptionData.cartItemUpdate;
     const targetItem = cart.items.find(
-      (item) =>
-        item.product._id === cartData.cartItemUpdate.payload.product._id,
+      (item) => item.product._id === payload.product._id,
     );
 
-    if (cartData?.cartItemUpdate.event === 'ITEM_OUT_OF_STOCK') {
+    if (event === 'ITEM_OUT_OF_STOCK' && targetItem) {
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       //@ts-expect-error
       setUpdatedItems((prev) => [
@@ -77,14 +52,15 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       setCart((prevCart) => ({
         ...prevCart,
         items: prevCart.items.filter(
-          (item) =>
-            item.product._id !== cartData.cartItemUpdate.payload.product._id,
+          (item) => item.product._id !== payload.product._id,
         ),
       }));
-    } else if (
-      cartData?.cartItemUpdate.event === 'ITEM_QUANTITY_UPDATED' &&
+    }
+
+    if (
+      event === 'ITEM_QUANTITY_UPDATED' &&
       targetItem &&
-      targetItem?.quantity > cartData?.cartItemUpdate.payload.quantity
+      targetItem.quantity > payload.quantity
     ) {
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       //@ts-expect-error
@@ -93,56 +69,52 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         {
           ...targetItem,
           action: 'ITEM_QUANTITY_UPDATED',
-          updatedQuantity: cartData?.cartItemUpdate.payload.quantity,
+          updatedQuantity: payload.quantity,
         },
       ]);
 
       setCart((prevCart) => ({
         ...prevCart,
         items: prevCart.items.map((item) =>
-          item.product._id === cartData?.cartItemUpdate.payload.product._id
+          item.product._id === payload.product._id
             ? {
                 ...item,
-                quantity: cartData?.cartItemUpdate.payload.quantity,
+                quantity: payload.quantity,
                 product: {
                   ...item.product,
-                  availableQuantity: cartData?.cartItemUpdate.payload.quantity,
+                  availableQuantity: payload.quantity,
                 },
               }
             : item,
         ),
       }));
     }
-  }, [cartData]);
+  }, [subscriptionData, cart.items]);
 
   const addToCart = (product: Product, quantity: number) => {
-    setCart((prevCart) => ({
-      ...prevCart,
-      items: [...prevCart.items, { product, quantity: quantity }],
+    setCart((prev) => ({
+      ...prev,
+      items: [...prev.items, { product, quantity }],
     }));
   };
 
   const removeFromCart = (productId: string) => {
-    setCart((prevCart) => ({
-      ...prevCart,
-      items: prevCart.items.filter((item) => item.product._id !== productId),
+    setCart((prev) => ({
+      ...prev,
+      items: prev.items.filter((item) => item.product._id !== productId),
     }));
   };
 
   const changeQuantity = (cartItemId: string, newQuantity: number) => {
-    setCart((prevCart) => {
-      return {
-        ...prevCart,
-        items: prevCart.items.map((item) =>
-          item._id === cartItemId ? { ...item, quantity: newQuantity } : item,
-        ),
-      };
-    });
+    setCart((prev) => ({
+      ...prev,
+      items: prev.items.map((item) =>
+        item._id === cartItemId ? { ...item, quantity: newQuantity } : item,
+      ),
+    }));
   };
 
-  const clearUpdates = () => {
-    setUpdatedItems([]);
-  };
+  const clearUpdates = () => setUpdatedItems([]);
 
   return (
     <CartContext.Provider
