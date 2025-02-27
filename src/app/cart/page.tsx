@@ -55,6 +55,8 @@ export default function CartPage() {
           <CartItem
             product={item.product}
             quantity={item.quantity}
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-expect-error
             cartItemId={item._id}
             key={item.product._id}
           />

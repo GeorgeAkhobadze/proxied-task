@@ -19,26 +19,31 @@ function makeClient() {
     fetchOptions: { cache: 'no-store' },
   });
 
-  const wsLink = new GraphQLWsLink(
-    createClient({
-      url: 'https://take-home-be.onrender.com/api',
-      connectionParams: {
-        authToken: localStorage.getItem('token'),
-      },
-    }),
-  );
+  const wsLink =
+    typeof window !== 'undefined'
+      ? new GraphQLWsLink(
+          createClient({
+            url: 'https://take-home-be.onrender.com/api',
+            connectionParams: () => ({
+              authToken: localStorage.getItem('token'),
+            }),
+          }),
+        )
+      : null;
 
-  const splitLink = split(
-    ({ query }) => {
-      const definition = getMainDefinition(query);
-      return (
-        definition.kind === 'OperationDefinition' &&
-        definition.operation === 'subscription'
-      );
-    },
-    wsLink,
-    httpLink,
-  );
+  const splitLink =
+    wsLink &&
+    split(
+      ({ query }) => {
+        const definition = getMainDefinition(query);
+        return (
+          definition.kind === 'OperationDefinition' &&
+          definition.operation === 'subscription'
+        );
+      },
+      wsLink,
+      httpLink,
+    );
 
   const authLink = setContext((_, { headers }) => {
     const token =
@@ -59,9 +64,9 @@ function makeClient() {
             new SSRMultipartLink({
               stripDefer: true,
             }),
-            authLink.concat(splitLink),
+            authLink.concat(httpLink), // No WS on the server
           ])
-        : authLink.concat(splitLink),
+        : authLink.concat(splitLink ?? httpLink),
   });
 }
 
